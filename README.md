@@ -98,7 +98,8 @@ Cuatro pantallas del flujo principal. Los pasos 1 a 4 del escenario son procesos
 
 | 1. Tablero del turno | 2. Ficha del neumático |
 |---|---|
-| ![Pantalla 1](docs/img/pantalla-1.png) | ![Pantalla 2](docs/img/pantalla-2.png) |
+| <img width="442" height="547" alt="image" src="https://github.com/user-attachments/assets/7f489b3a-70dc-472d-83bc-3947c490a0ad" />
+ | ![Pantalla 2](docs/img/pantalla-2.png) |
 | **3. Agendar intervención** | **4. Orden emitida** |
 | ![Pantalla 3](docs/img/pantalla-3.png) | ![Pantalla 4](docs/img/pantalla-4.png) |
 
