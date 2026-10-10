@@ -295,21 +295,8 @@ La meta de anticipación de 200 horas se ubica en *Después*, porque debe contra
 
 ---
 
-## Mejoras observadas en las capturas
+<img width="2600" height="1720" alt="image" src="https://github.com/user-attachments/assets/ac94159f-7c23-48d4-a055-1a7f2c7eb93e" />
 
-| Observación | Propuesta | Historia |
-|---|---|---|
-| Las zonas se basan solo en horas remanentes | Mostrar también el nivel de daño de la foto y priorizar el daño crítico | HU-F06 |
-| Las posiciones del camión muestran solo horas | Agregar el nivel de daño y un nivel por camión | HU-F06 |
-| La ficha registra mediciones, pero no muestra la imagen | Foto con daños marcados, confianza y corrección | HU-F05 |
-| El campo de búsqueda del tablero corta el texto de ayuda | Ensancharlo o acortar el texto | HU-F02 |
-| Las notas largas alargan mucho las filas de órdenes | Mostrar un resumen y expandir al hacer clic | HU-F07 |
-| La orden guarda la medición, no la evidencia visual | Vincular la foto del momento de la orden | HU-F08 |
-| Las capturas no muestran cómo modificar o cancelar una orden | Acciones «Modificar» y «Anular» con motivo e historial | HU-F09, HU-F10 |
-| La columna «última medición» muestra «(obs.)» sin explicar | Definir su significado y agregar una leyenda | HU-F01 |
-
-## Revisión INVEST
-Las historias de mejora (HU-F05, HU-F06, HU-F08) dependen de que el modelo de visión entregue daños y fotos. Mientras no exista, trabajarlas con fotos y daños de ejemplo, y dividirlas si no caben en un sprint (por ejemplo, separar la alerta crítica de la corrección).
 
 
 
