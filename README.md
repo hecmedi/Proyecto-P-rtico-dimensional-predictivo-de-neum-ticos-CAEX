@@ -99,9 +99,12 @@ Cuatro pantallas del flujo principal. Los pasos 1 a 4 del escenario son procesos
 | 1. Tablero del turno | 2. Ficha del neumático |
 |---|---|
 | <img width="442" height="547" alt="image" src="https://github.com/user-attachments/assets/7f489b3a-70dc-472d-83bc-3947c490a0ad" />
- | ![Pantalla 2](docs/img/pantalla-2.png) |
+ | <img width="442" height="547" alt="image" src="https://github.com/user-attachments/assets/f73b9803-0df4-4eac-b252-233cb2d0b1a2" />
+|
 | **3. Agendar intervención** | **4. Orden emitida** |
-| ![Pantalla 3](docs/img/pantalla-3.png) | ![Pantalla 4](docs/img/pantalla-4.png) |
+| <img width="442" height="547" alt="image" src="https://github.com/user-attachments/assets/c8c80b81-3610-4c75-aa9e-156bb6513d68" />
+| <img width="442" height="547" alt="image" src="https://github.com/user-attachments/assets/d81bfbe2-738a-4c84-acd9-2833a9994c10" />
+|
 
 Versión navegable en Figma: [Maqueta de sistema de mantenimiento](https://www.figma.com/make/EDZNEzovnKPwBaUDV0GySq/Maqueta-de-sistema-de-mantenimiento)
 
