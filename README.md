@@ -120,8 +120,6 @@ Versión navegable en Figma: [Maqueta de sistema de mantenimiento](https://www.f
 
 El roadmap reúne ocho resultados esperados distribuidos en **Ahora, Próximo y Después** ([página del proyecto en Notion] (https://app.notion.com/p/Grupo-3-b76498f17d47839d8bf701014eb9d394)
 
-![Roadmap](docs/img/roadmap.png)
-
 Durante el semestre se desarrollarán el tablero del planificador y el modelo de proyección con **datos sensoriales sintéticos**. La instalación del pórtico corresponde a una etapa posterior.
 
 La meta de anticipación de 200 horas se ubica en *Después*, porque debe contrastarse con la evolución real de los neumáticos y sus fallas registradas. El prototipo permitirá evaluar el funcionamiento del flujo con datos sintéticos, pero no acreditar esa anticipación ni una reducción de fallas en operación.
