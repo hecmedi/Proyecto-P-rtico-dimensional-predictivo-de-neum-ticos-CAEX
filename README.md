@@ -123,6 +123,124 @@ El roadmap reúne ocho resultados esperados distribuidos en **Ahora, Próximo y 
 Durante el semestre se desarrollarán el tablero del planificador y el modelo de proyección con **datos sensoriales sintéticos**. La instalación del pórtico corresponde a una etapa posterior.
 
 La meta de anticipación de 200 horas se ubica en *Después*, porque debe contrastarse con la evolución real de los neumáticos y sus fallas registradas. El prototipo permitirá evaluar el funcionamiento del flujo con datos sintéticos, pero no acreditar esa anticipación ni una reducción de fallas en operación.
+# CAEX Monitor — prototipo interactivo
+
+## Abrir en Visual Studio Code
+1. Descomprime el ZIP.
+2. Abre la carpeta `caex_tire_monitor` en Visual Studio Code.
+3. Abre `index.html` en el navegador o usa la extensión Live Server.
+
+## Pestañas conectadas
+- **Tablero del turno:** indicadores, colores rojo/amarillo/verde/sin datos, búsqueda y filtros. Al pulsar una fila se abre la ficha del neumático.
+- **Camiones:** seis posiciones por CAEX. Al pulsar una posición ocupada se abre la misma ficha; una posición vacía permite registrar un neumático.
+- **Órdenes de trabajo:** crea órdenes asociadas a neumáticos existentes; desde una orden puedes abrir la ficha relacionada. Las órdenes pueden pasar a ejecutadas o anuladas.
+- **Mediciones:** al guardar una nueva medición se actualizan la proyección, el color de estado, los contadores del tablero y la vista del camión.
+- **Persistencia:** los cambios se guardan en localStorage del navegador.
+
+## Fórmula de demostración
+Horas remanentes = ((profundidad actual - umbral de retiro) / tasa de desgaste) × 100.
+
+La tasa se expresa en mm por cada 100 horas. Validar el umbral y el método de proyección con el área técnica antes de usar datos operacionales.
+
+## Límites
+Es un prototipo local con datos de ejemplo. No procesa automáticamente fotografías, no tiene usuarios/permisos y no sincroniza datos entre equipos. Para producción se recomienda API/backend, base de datos centralizada, auditoría, autenticación, respaldos y validación del método de medición.
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CAEX | Control de neumáticos</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand"><div class="brand-mark">C</div><div><strong>CAEX Monitor</strong><small>Gestión de neumáticos</small></div></div>
+    <div class="nav-label">OPERACIONES</div>
+    <button class="nav-link active" data-tab="dashboard">▦ <span>Tablero del turno</span></button>
+    <button class="nav-link" data-tab="trucks">▤ <span>Camiones</span></button>
+    <button class="nav-link" data-tab="orders">☷ <span>Órdenes de trabajo</span></button>
+    <div class="sidebar-bottom"><span class="status-dot"></span> Prototipo local <small>v1.0</small></div>
+  </aside>
+  <main class="main">
+    <header class="topbar">
+      <div><span class="eyebrow">GESTIÓN DE FLOTA / NEUMÁTICOS</span><h1 id="page-title">Tablero del turno</h1></div>
+      <div class="top-actions"><span class="date-label" id="today"></span><button class="btn primary" id="new-order">＋ Nueva orden</button></div>
+    </header>
+
+    <section class="tab-page active" id="dashboard">
+      <p class="intro">Flota ordenada por horas de vida útil remanente. Selecciona un neumático para consultar su ficha y registrar una medición.</p>
+      <div class="stats-grid">
+        <article class="stat-card"><div class="stat-heading"><span class="dot red"></span> ROJO</div><strong id="red-count">0</strong><p>Menos de 200 horas: priorizar retiro</p></article>
+        <article class="stat-card"><div class="stat-heading"><span class="dot yellow"></span> AMARILLO</div><strong id="yellow-count">0</strong><p>Menos de 500 horas: planificar intervención</p></article>
+        <article class="stat-card"><div class="stat-heading"><span class="dot green"></span> VERDE</div><strong id="green-count">0</strong><p>Más de 500 horas remanentes</p></article>
+        <article class="stat-card"><div class="stat-heading"><span class="dot gray"></span> SIN DATOS</div><strong id="nodata-count">0</strong><p>Sin mediciones para proyectar</p></article>
+      </div>
+      <div class="toolbar">
+        <input id="tire-search" placeholder="Buscar por serial, camión o modelo…">
+        <select id="zone-filter"><option value="all">Todas las zonas</option><option value="red">Rojo</option><option value="yellow">Amarillo</option><option value="green">Verde</option><option value="nodata">Sin datos</option></select>
+        <select id="rate-filter"><option value="all">Cualquier tasa</option><option value="observed">Tasa observada</option><option value="nominal">Tasa nominal</option></select>
+      </div>
+      <div class="table-wrap"><table><thead><tr><th>CAMIÓN</th><th>POS.</th><th>SERIAL</th><th>PROFUNDIDAD</th><th>TASA RECIENTE</th><th>TASA SEGÚN</th><th>HORAS REMANENTES</th><th>ZONA</th><th>ÚLTIMA MEDICIÓN</th></tr></thead><tbody id="tire-table"></tbody></table></div>
+      <p class="footnote">La proyección es una estimación basada en la profundidad, el umbral de retiro y la tasa de desgaste seleccionada. Validar siempre según los criterios técnicos y de seguridad de la operación.</p>
+    </section>
+
+    <section class="tab-page" id="trucks">
+      <p class="intro">Seis posiciones por camión. Selecciona una posición para abrir la ficha del neumático y registrar una nueva medición.</p>
+      <div class="toolbar"><input id="truck-search" placeholder="Buscar por camión, modelo, serial o zona…"></div>
+      <div id="truck-list" class="truck-list"></div>
+    </section>
+
+    <section class="tab-page" id="orders">
+      <p class="intro">Cada orden conserva la medición y la proyección que la originaron, dejando trazabilidad para el taller, la reunión semanal y el proveedor.</p>
+      <div class="stats-grid order-stats">
+        <article class="stat-card"><div class="stat-heading">PROGRAMADA</div><strong id="scheduled-count">0</strong></article>
+        <article class="stat-card"><div class="stat-heading">EJECUTADA</div><strong id="done-count">0</strong></article>
+        <article class="stat-card"><div class="stat-heading">ANULADA</div><strong id="cancelled-count">0</strong></article>
+      </div>
+      <div class="toolbar"><input id="order-search" placeholder="Buscar por orden, serial, camión o nota…"><select id="order-status"><option value="all">Todos los estados</option><option>Programada</option><option>Ejecutada</option><option>Anulada</option></select><select id="order-type"><option value="all">Todos los tipos</option><option>Retiro</option><option>Rotación</option><option>Inspección</option></select></div>
+      <div class="table-wrap"><table><thead><tr><th>ORDEN</th><th>NEUMÁTICO</th><th>INTERVENCIÓN Y NOTA</th><th>PROGRAMADA</th><th>HORAS AL EMITIR</th><th>ORIGEN</th><th>ESTADO</th><th>ACCIONES</th></tr></thead><tbody id="order-table"></tbody></table></div>
+    </section>
+  </main>
+
+  <dialog id="tire-dialog">
+    <form method="dialog" class="dialog-close"><button class="close-btn" aria-label="Cerrar">×</button></form>
+    <div id="tire-detail"></div>
+  </dialog>
+
+  <dialog id="order-dialog">
+    <form id="order-form" class="modal-form">
+      <div class="modal-heading"><div><span class="eyebrow">GESTIÓN DE MANTENIMIENTO</span><h2>Nueva orden de trabajo</h2></div><button type="button" class="close-btn" id="close-order">×</button></div>
+      <label>Neumático<select id="order-tire" required></select></label>
+      <div class="form-grid"><label>Tipo de intervención<select id="order-kind"><option>Retiro</option><option>Rotación</option><option>Inspección</option></select></label><label>Fecha programada<input id="order-date" type="date" required></label></div>
+      <label>Responsable / turno<input id="order-shift" placeholder="Ej. Turno A, 08:00–12:00"></label>
+      <label>Nota y coordinación<textarea id="order-note" rows="3" placeholder="Motivo, coordinación con taller, proveedor, despacho…"></textarea></label>
+      <div class="form-actions"><button type="button" class="btn secondary" id="cancel-order">Cancelar</button><button class="btn primary" type="submit">Guardar orden</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="add-tire-dialog">
+    <form id="add-tire-form" class="modal-form">
+      <div class="modal-heading"><div><span class="eyebrow">FLOTA / POSICIÓN VACÍA</span><h2>Registrar neumático</h2></div><button type="button" class="close-btn" id="close-add-tire">×</button></div>
+      <div class="form-grid">
+        <label>Camión<select id="add-truck" required></select></label>
+        <label>Posición<select id="add-pos" required><option value="1">P1</option><option value="2">P2</option><option value="3">P3</option><option value="4">P4</option><option value="5">P5</option><option value="6">P6</option></select></label>
+      </div>
+      <label>Serial del neumático<input id="add-serial" required placeholder="Ej. 5980R63-0000-0000"></label>
+      <label>Modelo<input id="add-model" required value="Cat 793F"></label>
+      <div class="form-grid">
+        <label>Profundidad (mm)<input id="add-depth" type="number" min="0" max="100" step=".1" placeholder="Ej. 32.5"></label>
+        <label>Tasa observada (mm/100 h)<input id="add-rate" type="number" min=".01" max="20" step=".01" placeholder="Ej. 1.3"></label>
+      </div>
+      <label>Umbral de retiro (mm)<input id="add-threshold" type="number" min="0" max="100" step=".1" value="10" required></label>
+      <div class="form-actions"><button type="button" class="btn secondary" id="cancel-add-tire">Cancelar</button><button class="btn primary" type="submit">Guardar neumático</button></div>
+    </form>
+  </dialog>
+
+  <div id="toast" role="status"></div>
+  <script src="app.js"></script>
+</body>
+</html>
 
 
 
